@@ -11,8 +11,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,15 +38,17 @@ public class MainActivityFragment extends Fragment {
     GridView gridView;
     GridviewAdapter gridviewAdapter;
     private ArrayList<String> movieArrayList = null;
+    public static boolean land=false;
 
     public MainActivityFragment() {
     }
 
+    View v;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.fragment_main, container, false);
+        v = inflater.inflate(R.layout.fragment_main, container, false);
 
         gridView = (GridView) v.findViewById(R.id.grid_view);
 
@@ -50,7 +57,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 int poster_e = movieArrayList.get(i).indexOf("\"t\"");
-                int title_s = movieArrayList.get(i).indexOf("\"t\"")+3;
+                int title_s = movieArrayList.get(i).indexOf("\"t\"") + 3;
                 int title_e = movieArrayList.get(i).indexOf("\"d");
                 int date_s = movieArrayList.get(i).indexOf("\"d\"") + 3;
                 int date_e = movieArrayList.get(i).indexOf("\"v");
@@ -58,22 +65,35 @@ public class MainActivityFragment extends Fragment {
                 int vote_e = movieArrayList.get(i).indexOf("\"o");
                 int ov_s = movieArrayList.get(i).indexOf("\"o\"") + 3;
                 String baseUrl = "http://image.tmdb.org/t/p/w185/";
-                String poster_url = baseUrl+movieArrayList.get(i).substring(0, poster_e);
+                String poster_url = baseUrl + movieArrayList.get(i).substring(0, poster_e);
                 String title = movieArrayList.get(i).substring(title_s, title_e);
                 String date = movieArrayList.get(i).substring(date_s, date_e);
                 String vote = movieArrayList.get(i).substring(vote_s, vote_e);
                 String ov = movieArrayList.get(i).substring(ov_s);
 
-                Intent Deatail = new Intent(getActivity(), DetailActivity.class);
-                Deatail.putExtra("poster_url", poster_url);
-                Deatail.putExtra("title", title);
-                Deatail.putExtra("date", date);
-                Deatail.putExtra("vote", vote);
-                Deatail.putExtra("ov", ov);
-                startActivity(Deatail);
+                if (land == true) {
+                    MainActivity.land(poster_url, title, date, vote, ov);
+                } else {
+                    Intent Deatail = new Intent(getActivity(), DetailActivity.class);
+                    Deatail.putExtra("poster_url", poster_url);
+                    Deatail.putExtra("title", title);
+                    Deatail.putExtra("date", date);
+                    Deatail.putExtra("vote", vote);
+                    Deatail.putExtra("ov", ov);
+                    startActivity(Deatail);
+                }
             }
         });
 
+        Button top = (Button) v.findViewById(R.id.top);
+        top.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getActivity(), "top rated ", Toast.LENGTH_LONG).show();
+            MovieTask  task = new MovieTask();
+            task.execute("top_rated?");
+            }
+        });
         return v;
     }
 
@@ -88,8 +108,10 @@ public class MainActivityFragment extends Fragment {
         if (id == R.id.top_rated) {
 //            MainActivityFragment.FORECAST_BASE_URL="https://api.themoviedb.org/3/movie/top_rated?";
 //            String ie="https://api.themoviedb.org/3/movie/top_rated?";
+            Toast.makeText(getActivity(), "top rated ", Toast.LENGTH_LONG).show();
             MovieTask  task = new MovieTask();
-            task.execute("popular?");
+            task.execute("top_rated?");
+            Toast.makeText(getActivity(), "top rated ", Toast.LENGTH_LONG).show();
             return true;
         }
 
@@ -107,6 +129,7 @@ public class MainActivityFragment extends Fragment {
 //            Log.v("TESSSSSSSSSSSSSSSSSSSSt",params[0]);
             String FORECAST_BASE_URL =
                     "https://api.themoviedb.org/3/movie/"+params[0];
+//                    "https://api.themoviedb.org/3/movie/top_rated?";
 //            Toast.makeText(getActivity(), params[0], Toast.LENGTH_LONG).show();
 
             HttpURLConnection urlConnection = null;
