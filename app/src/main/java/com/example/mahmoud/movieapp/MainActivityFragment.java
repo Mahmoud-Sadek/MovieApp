@@ -84,21 +84,17 @@ public class MainActivityFragment extends Fragment {
                 int vote_s = movieArrayList.get(i).indexOf("\"v\"") + 3;
                 int vote_e = movieArrayList.get(i).indexOf("\"o");
                 int ov_s = movieArrayList.get(i).indexOf("\"o\"") + 3;
-//                int ov_e = movieArrayList.get(i).indexOf("\"i");
-//                int id_s = movieArrayList.get(i).indexOf("\"i\"") + 3;
+                int ov_e = movieArrayList.get(i).indexOf("\"i") ;
+                int id_s = movieArrayList.get(i).indexOf("\"i\"") + 3;
+
                 String baseUrl = "http://image.tmdb.org/t/p/w185";
                 String poster_url = baseUrl+movieArrayList.get(i).substring(0, poster_e);
                 String title = movieArrayList.get(i).substring(title_s, title_e);
                 String date = movieArrayList.get(i).substring(date_s, date_e);
                 String vote = movieArrayList.get(i).substring(vote_s, vote_e);
-                String ov = movieArrayList.get(i).substring(ov_s);
-//                String id =movieArrayList.get(i).substring(id_s);
-//                DataBase = new DatabasAdapter(getActivity());
-//                long insrt = DataBase.insertData(1, poster_url, title, date, vote, ov);
-//                if (insrt !=-1){
-//                    Toast.makeText(getActivity(), "Done Insert Data", Toast.LENGTH_SHORT).show();
-//                }else Toast.makeText(getActivity(), "Error In Insert Data", Toast.LENGTH_SHORT).show();
-//                Toast.makeText(getActivity(), DataBase.getAllData2(), Toast.LENGTH_LONG).show();
+                String ov = movieArrayList.get(i).substring(ov_s,ov_e);
+                String id = movieArrayList.get(i).substring(id_s);
+
 
             if (land == true) {
                     MainActivity.land(poster_url, title, date, vote, ov);
@@ -110,6 +106,7 @@ public class MainActivityFragment extends Fragment {
                     Deatail.putExtra("date", date);
                     Deatail.putExtra("vote", vote);
                     Deatail.putExtra("ov", ov);
+                Deatail.putExtra("id",id );
                     startActivity(Deatail);
                 }
             }
@@ -304,7 +301,7 @@ public class MainActivityFragment extends Fragment {
                 String overvie = movie.getString(overview);
                 String title = movie.getString(original_title);
                 int _id = movie.getInt(id);
-                results[i] = poster + "\"t\"" + title + "\"d\"" + release + "\"v\"" + vote + "\"o\"" + overvie ;
+                results[i] = poster + "\"t\"" + title + "\"d\"" + release + "\"v\"" + vote + "\"o\"" + overvie+"\"i\""+_id ;
             }
                 return results;
         }

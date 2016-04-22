@@ -1,12 +1,14 @@
 package com.example.mahmoud.movieapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +17,8 @@ import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
 
+    Intent back;
+    Trailer t;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +36,7 @@ public class DetailActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Intent back = getIntent();
+        back = getIntent();
         ImageView poster = (ImageView) findViewById(R.id.movie_image);
         String poster_url = back.getStringExtra("poster_url");
         Toast.makeText(getBaseContext(), poster_url, Toast.LENGTH_LONG).show();
@@ -45,6 +49,15 @@ public class DetailActivity extends AppCompatActivity {
         vote.setText(back.getStringExtra("vote"));
         TextView ov = ((TextView) findViewById(R.id.movie_overview_text));
         ov.setText(back.getStringExtra("ov"));
+        Button trailer = (Button) findViewById(R.id.trailer);
+        t = new Trailer(getBaseContext(),back.getStringExtra("id"));
+        trailer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(t.trailer)));
+                Toast.makeText(DetailActivity.this, "Trailer is " + t.trailer, Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 

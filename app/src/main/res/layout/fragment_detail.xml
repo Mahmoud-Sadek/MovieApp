@@ -61,5 +61,10 @@
         android:id="@+id/movie_overview_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/trailer"
+        android:text="Trailer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>
 </ScrollView>
