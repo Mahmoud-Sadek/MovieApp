@@ -1,6 +1,9 @@
 package com.example.mahmoud.movieapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -30,6 +33,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Objects;
+
 /**
  * A placeholder fragment containing a simple view.
  */
@@ -39,6 +45,8 @@ public class MainActivityFragment extends Fragment {
     GridviewAdapter gridviewAdapter;
     private ArrayList<String> movieArrayList = null;
     public static boolean land=false;
+    DatabasAdapter DataBase ;
+//    static MovieData movieData [];
 
     public MainActivityFragment() {
     }
@@ -52,28 +60,50 @@ public class MainActivityFragment extends Fragment {
 
         gridView = (GridView) v.findViewById(R.id.grid_view);
 
-        new MovieTask().execute("popular?");
+        DataBase = new DatabasAdapter(getActivity());
+        if(isNetworkAvailable()){
+            Toast.makeText(getActivity(),DataBase.deleteData()+" deleted" , Toast.LENGTH_LONG).show();
+            new MovieTask().execute("popular?");
+        }
+        else{
+            Toast.makeText(getActivity(), "No Network Available", Toast.LENGTH_SHORT).show();
+            movieArrayList =DataBase.getAllData();
+                gridviewAdapter = new GridviewAdapter(getActivity(), movieArrayList );
+                gridView.setAdapter(gridviewAdapter);
+        }
+
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getActivity(), movieArrayList.get(i), Toast.LENGTH_LONG).show();
                 int poster_e = movieArrayList.get(i).indexOf("\"t\"");
-                int title_s = movieArrayList.get(i).indexOf("\"t\"") + 3;
+                int title_s = movieArrayList.get(i).indexOf("\"t\"")+3;
                 int title_e = movieArrayList.get(i).indexOf("\"d");
                 int date_s = movieArrayList.get(i).indexOf("\"d\"") + 3;
                 int date_e = movieArrayList.get(i).indexOf("\"v");
                 int vote_s = movieArrayList.get(i).indexOf("\"v\"") + 3;
                 int vote_e = movieArrayList.get(i).indexOf("\"o");
                 int ov_s = movieArrayList.get(i).indexOf("\"o\"") + 3;
-                String baseUrl = "http://image.tmdb.org/t/p/w185/";
-                String poster_url = baseUrl + movieArrayList.get(i).substring(0, poster_e);
+//                int ov_e = movieArrayList.get(i).indexOf("\"i");
+//                int id_s = movieArrayList.get(i).indexOf("\"i\"") + 3;
+                String baseUrl = "http://image.tmdb.org/t/p/w185";
+                String poster_url = baseUrl+movieArrayList.get(i).substring(0, poster_e);
                 String title = movieArrayList.get(i).substring(title_s, title_e);
                 String date = movieArrayList.get(i).substring(date_s, date_e);
                 String vote = movieArrayList.get(i).substring(vote_s, vote_e);
                 String ov = movieArrayList.get(i).substring(ov_s);
+//                String id =movieArrayList.get(i).substring(id_s);
+//                DataBase = new DatabasAdapter(getActivity());
+//                long insrt = DataBase.insertData(1, poster_url, title, date, vote, ov);
+//                if (insrt !=-1){
+//                    Toast.makeText(getActivity(), "Done Insert Data", Toast.LENGTH_SHORT).show();
+//                }else Toast.makeText(getActivity(), "Error In Insert Data", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity(), DataBase.getAllData2(), Toast.LENGTH_LONG).show();
 
-                if (land == true) {
+            if (land == true) {
                     MainActivity.land(poster_url, title, date, vote, ov);
                 } else {
+                Toast.makeText(getActivity(), movieArrayList.get(i), Toast.LENGTH_LONG).show();
                     Intent Deatail = new Intent(getActivity(), DetailActivity.class);
                     Deatail.putExtra("poster_url", poster_url);
                     Deatail.putExtra("title", title);
@@ -90,11 +120,49 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getActivity(), "top rated ", Toast.LENGTH_LONG).show();
-            MovieTask  task = new MovieTask();
-            task.execute("top_rated?");
+                MovieTask task = new MovieTask();
+                task.execute("top_rated?");
             }
         });
         return v;
+    }
+
+    public void getData(String [] movie){
+        if (movie != null) {
+            movieArrayList = new ArrayList<>();
+            for (int i =0; i< movie.length;i++) {
+                movieArrayList.add(movie[i]);
+                int poster_e = movieArrayList.get(i).indexOf("\"t\"");
+                int title_s = movieArrayList.get(i).indexOf("\"t\"")+3;
+                int title_e = movieArrayList.get(i).indexOf("\"d");
+                int date_s = movieArrayList.get(i).indexOf("\"d\"") + 3;
+                int date_e = movieArrayList.get(i).indexOf("\"v");
+                int vote_s = movieArrayList.get(i).indexOf("\"v\"") + 3;
+                int vote_e = movieArrayList.get(i).indexOf("\"o");
+                int ov_s = movieArrayList.get(i).indexOf("\"o\"") + 3;
+//                int ov_e = movieArrayList.get(i).indexOf("\"i");
+//                int id_s = movieArrayList.get(i).indexOf("\"i\"") + 3;
+                String baseUrl = "http://image.tmdb.org/t/p/w185";
+                String poster_url = baseUrl+movieArrayList.get(i).substring(0, poster_e);
+                String title = movieArrayList.get(i).substring(title_s, title_e);
+                String date = movieArrayList.get(i).substring(date_s, date_e);
+                String vote = movieArrayList.get(i).substring(vote_s, vote_e);
+                String ov = movieArrayList.get(i).substring(ov_s);
+//                String id =movieArrayList.get(i).substring(id_s);
+                DataBase = new DatabasAdapter(getActivity());
+//                Toast.makeText(getActivity(), poster_url +"\n"+ title+"\n"+ date+"\n"+ vote+"\n"+ ov, Toast.LENGTH_LONG).show();
+                long insrt = DataBase.insertData(1, poster_url, title, date, vote, ov);
+                if (insrt !=-1){
+                    Toast.makeText(getActivity(), "Done Insert Data", Toast.LENGTH_SHORT).show();
+                }else Toast.makeText(getActivity(), "Error In Insert Data", Toast.LENGTH_SHORT).show();
+
+            }
+            gridviewAdapter = new GridviewAdapter(getActivity(), movieArrayList);
+            gridView.setAdapter(gridviewAdapter);
+            Log.d("Data Count", movie.length + "");
+
+        } else
+            Log.d("message", "No Data");
     }
 
     @Override
@@ -117,6 +185,12 @@ public class MainActivityFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
     public class MovieTask extends AsyncTask<String, Void, String[]> {
 
         @Override
@@ -128,8 +202,7 @@ public class MainActivityFragment extends Fragment {
 //            }
 //            Log.v("TESSSSSSSSSSSSSSSSSSSSt",params[0]);
             String FORECAST_BASE_URL =
-                    "https://api.themoviedb.org/3/movie/"+params[0];
-//                    "https://api.themoviedb.org/3/movie/top_rated?";
+                    "https://api.themoviedb.org/3/movie/" + params[0];
 //            Toast.makeText(getActivity(), params[0], Toast.LENGTH_LONG).show();
 
             HttpURLConnection urlConnection = null;
@@ -159,7 +232,7 @@ public class MainActivityFragment extends Fragment {
                 StringBuffer buffer = new StringBuffer();
                 if (inputStream == null) {
                     // Nothing to do.
-                    Log.d("message","InputStream");
+                    Log.d("message", "InputStream");
                     return null;
                 }
                 reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -170,7 +243,7 @@ public class MainActivityFragment extends Fragment {
                 }
 
                 if (buffer.length() == 0) {
-                    Log.d("message","buffer");
+                    Log.d("message", "buffer");
 
                     return null;
                 }
@@ -192,7 +265,7 @@ public class MainActivityFragment extends Fragment {
             }
 
             try {
-                Log.d("message","data");
+                Log.d("message", "data");
 
                 return getDataFromJson(JsonStr);
             } catch (JSONException e) {
@@ -201,27 +274,13 @@ public class MainActivityFragment extends Fragment {
             }
 
             // This will only happen if there was an error getting or parsing the forecast.
-            Log.d("message","null");
+            Log.d("message", "null");
             return null;
         }
 
         @Override
         protected void onPostExecute(String[] movie) {
-            if (movie != null) {
-                movieArrayList = new ArrayList<>();
-                for (String movieStr : movie) {
-                    movieArrayList.add(movieStr);
-                }
-                gridviewAdapter = new GridviewAdapter(getActivity(), movieArrayList );
-                gridView.setAdapter(gridviewAdapter);
-                Log.d("Data Count", movie.length + "");
-
-            }
-
-            else
-                Log.d("message","No Data");
-
-
+            getData(movie);
         }
 
         private String[] getDataFromJson(String jsonStr) throws JSONException {
@@ -231,10 +290,11 @@ public class MainActivityFragment extends Fragment {
             final String vote_average = "vote_average";
             final String overview = "overview";
             final String original_title = "original_title";
+            final String id = "id";
             JSONObject movieJson = new JSONObject(jsonStr);
             JSONArray movieArray = movieJson.getJSONArray(M_LIST);
 
-            String [] results = new String[movieArray.length()];
+            String[] results = new String[movieArray.length()];
 
             for (int i = 0; i < movieArray.length(); i++) {
                 JSONObject movie = movieArray.getJSONObject(i);
@@ -243,12 +303,12 @@ public class MainActivityFragment extends Fragment {
                 String vote = movie.getString(vote_average);
                 String overvie = movie.getString(overview);
                 String title = movie.getString(original_title);
-                results[i] = poster+"\"t\""+title+"\"d\""+release +"\"v\""+vote+"\"o\""+overvie;
+                int _id = movie.getInt(id);
+                results[i] = poster + "\"t\"" + title + "\"d\"" + release + "\"v\"" + vote + "\"o\"" + overvie ;
             }
-
-            return results;
+                return results;
         }
 
-
     }
+
 }
